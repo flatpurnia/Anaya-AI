@@ -43,6 +43,11 @@ small{color:#d5bfd1}
 <div class="actions">
 <button onclick="voiceInput()">🎙️ Bolo</button>
 <button onclick="speak()">🔊 Suno</button>
+ <button id="callBtn" onclick="toggleCall()">
+  📞 Call Anaya
+</button>
+<span id="callStatus">Call not started</span>
+
 </div>
 <div class="controls">
 <input id="message" placeholder="Anaya se baat karo..." onkeydown="if(event.key==='Enter')send()">
@@ -50,6 +55,128 @@ small{color:#d5bfd1}
 </div>
 </div>
 <script>
+
+let callActive = false;
+let callRecognition = null;
+let callSpeaking = false;
+let callThinking = false;
+
+function toggleCall() {
+  if (callActive) {
+    endCall();
+    return;
+  }
+
+  const SR = window.SpeechRecognition ||
+             window.webkitSpeechRecognition;
+
+  if (!SR) {
+    alert("Please use Chrome for Anaya voice calling.");
+    return;
+  }
+
+  callRecognition = new SR();
+  callRecognition.lang = "hi-IN";
+  callRecognition.continuous = false;
+  callRecognition.interimResults = false;
+
+  callRecognition.onresult = async (event) => {
+    const spokenText = event.results[0][0].transcript;
+
+    if (!callActive) return;
+
+    callThinking = true;
+    document.getElementById("callStatus").textContent =
+      "Anaya is listening... ❤️";
+
+    document.getElementById("message").value = spokenText;
+
+    await send();
+
+    if (callActive) {
+      callThinking = false;
+      speakCallReply();
+    }
+  };
+
+  callRecognition.onend = () => {
+    if (callActive && !callSpeaking && !callThinking) {
+      setTimeout(startListening, 400);
+    }
+  };
+
+  callActive = true;
+
+  document.getElementById("callBtn").textContent =
+    "📴 End Call";
+
+  startListening();
+}
+
+function startListening() {
+  if (!callActive || callSpeaking || callThinking) return;
+
+  try {
+    document.getElementById("callStatus").textContent =
+      "🎙️ Anaya is listening...";
+
+    callRecognition.start();
+  } catch (error) {
+    console.log("Listening restart:", error.message);
+  }
+}
+
+function speakCallReply() {
+  if (!callActive || !window.lastReply) return;
+
+  speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(
+    window.lastReply
+  );
+
+  utterance.lang = "hi-IN";
+  utterance.rate = 0.92;
+  utterance.pitch = 1.12;
+
+  callSpeaking = true;
+
+  utterance.onend = () => {
+    callSpeaking = false;
+
+    if (callActive) {
+      setTimeout(startListening, 300);
+    }
+  };
+
+  utterance.onerror = () => {
+    callSpeaking = false;
+    if (callActive) startListening();
+  };
+
+  speechSynthesis.speak(utterance);
+}
+
+function endCall() {
+  callActive = false;
+  callSpeaking = false;
+  callThinking = false;
+
+  if (callRecognition) {
+    callRecognition.onend = null;
+    callRecognition.stop();
+    callRecognition = null;
+  }
+
+  speechSynthesis.cancel();
+
+  document.getElementById("callBtn").textContent =
+    "📞 Call Anaya";
+
+  document.getElementById("callStatus").textContent =
+    "Call ended ❤️";
+}
+
 const chat=document.getElementById("chat");
 let history=[];
 function add(text,type){

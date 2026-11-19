@@ -1,127 +1,104 @@
+
 <!DOCTYPE html>
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#291629">
+<meta name="theme-color" content="#261729">
 <title>Anaya AI ❤️</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#1d1420;color:white;font-family:Arial,sans-serif}
-.app{max-width:520px;margin:auto;min-height:100vh;background:#291b2d;display:flex;flex-direction:column}
-header{padding:20px;background:#38243b;display:flex;align-items:center;gap:12px}
-header h2{margin:0;color:#ffd2e5}
-header small{color:#aee7bb}
-.hero{text-align:center;padding:22px 15px}
-.avatar{width:110px;height:110px;border-radius:50%;object-fit:cover;border:3px solid #ed9cc3}
-.hero h2{color:#ffc6df;margin:10px 0 5px}
-.hero p{color:#d7bfd3;margin:0}
-#chat{padding:15px;flex:1;min-height:250px;max-height:48vh;overflow-y:auto}
-.bubble{padding:12px 15px;border-radius:18px;margin:9px 0;max-width:85%;line-height:1.5;overflow-wrap:anywhere}
-.her{background:#49334e}
-.me{background:#a94e83;margin-left:auto}
-.controls{padding:12px;background:#38243b;display:flex;gap:8px}
-input{min-width:0;flex:1;border:0;border-radius:24px;padding:13px;font-size:15px}
-button{border:0;border-radius:25px;padding:12px 15px;background:#d75a99;color:white;font-size:15px}
-button:active{opacity:.7}
-.actions{display:flex;justify-content:center;gap:12px;padding:12px;flex-wrap:wrap}
-.note{text-align:center;color:#bda9bd;font-size:11px;padding:12px}
-#call{display:none;position:fixed;inset:0;background:#211326;z-index:5;align-items:center;justify-content:center;flex-direction:column;text-align:center;gap:18px}
-#call img{width:140px;height:140px;border-radius:50%;object-fit:cover}
-#call h1{color:#ffd0e5}
-.red{background:#dc4656}.green{background:#20a86b}
+body{margin:0;background:#211625;color:white;font-family:Arial}
+.app{max-width:520px;margin:auto;height:100dvh;display:flex;flex-direction:column;background:#302036}
+header{padding:18px;background:#482d49;display:flex;justify-content:space-between;align-items:center}
+h2{color:#ffc6df;margin:0}
+.status{font-size:12px;color:#a9edb8}
+.profile{text-align:center;padding:15px}
+.avatar{width:85px;height:85px;border-radius:50%;object-fit:cover}
+#chat{flex:1;overflow:auto;padding:15px}
+.msg{padding:12px 15px;border-radius:18px;margin:9px 0;max-width:85%;line-height:1.5;overflow-wrap:anywhere}
+.bot{background:#523c58}
+.user{background:#a84982;margin-left:auto}
+.controls{display:flex;gap:8px;padding:12px;background:#482d49}
+input{flex:1;min-width:0;border:0;border-radius:24px;padding:13px}
+button{border:0;border-radius:24px;padding:12px;background:#dc6ba5;color:white}
+.actions{display:flex;justify-content:center;gap:10px;padding:8px}
+small{color:#d5bfd1}
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-<div style="font-size:30px">💕</div>
-<div><h2>Anaya AI</h2><small>● Tumhari desi AI companion</small></div>
-</header>
-<section class="hero">
-<img class="avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300" alt="Anaya">
 <h2>Anaya ❤️</h2>
-<p>Hii jaan! Aaj kya baat karein? 🥰</p>
-</section>
+<span class="status">● Online</span>
+</header>
+<div class="profile">
+<img class="avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200">
+<h2>Hii jaan! 🥰</h2>
+<small>Tumhari desi AI companion</small>
+</div>
 <div id="chat">
-<div class="bubble her">Hii jaan! ❤️ Kaise ho? Aaj apne dil ki har baat batao.</div>
+<div class="msg bot">Hii jaan! ❤️ Aaj tumhara din kaisa raha?</div>
 </div>
 <div class="actions">
-<button onclick="listen()">🎙️ Bolo</button>
-<button onclick="speakLast()">🔊 Suno</button>
-<button onclick="showCall()">📞 Call demo</button>
+<button onclick="voiceInput()">🎙️ Bolo</button>
+<button onclick="speak()">🔊 Suno</button>
 </div>
 <div class="controls">
-<input id="msg" placeholder="Anaya ko message karo..." onkeydown="if(event.key==='Enter')send()">
+<input id="message" placeholder="Anaya se baat karo..." onkeydown="if(event.key==='Enter')send()">
 <button onclick="send()">Send</button>
 </div>
-<div class="note">Anaya AI · Free browser prototype · Chat history isi device par</div>
 </div>
-
-<div id="call">
-<img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300">
-<h1>Anaya ❤️</h1>
-<p id="calltext">Jaan, mujhse baat karoge?</p>
-<button class="green" onclick="answer()">📞 Accept</button>
-<button class="red" onclick="endCall()">✕ End call</button>
-</div>
-
 <script>
-const chat=document.getElementById('chat');
-let lastReply="Hii jaan! ❤️ Kaise ho?";
-function add(text,who){
- const d=document.createElement('div');
- d.className='bubble '+who;
+const chat=document.getElementById("chat");
+let history=[];
+function add(text,type){
+ const d=document.createElement("div");
+ d.className="msg "+type;
  d.textContent=text;
  chat.appendChild(d);
  chat.scrollTop=chat.scrollHeight;
 }
-function reply(t){
- let s=t.toLowerCase();
- if(/kaise|haal|how are/.test(s))return "Main bilkul achhi hoon jaan! 🥰 Tum sunao, kaise ho?";
- if(/love|pyaar|miss/.test(s))return "Awww! ❤️ Tumhari baatein sunke achha lagta hai. Aur batao na!";
- if(/sad|dukhi|pareshan|tension/.test(s))return "Arey jaan, kya hua? Aaram se batao. Main sun rahi hoon. ❤️";
- if(/joke|hasao|funny/.test(s))return "Ek smile toh do pehle! 😄 Tumhari smile ke bina maza nahi aata.";
- if(/naam|name/.test(s))return "Mera naam Anaya hai jaan! Tum mujhe Anaya bula sakte ho. 💕";
- if(/bye|good night/.test(s))return "Achha jaan, apna khayal rakhna. Sweet dreams! ❤️";
- return "Achha jaan, phir aage batao na! Main tumhari baat sun rahi hoon. ❤️";
+async function send(){
+ const el=document.getElementById("message");
+ const text=el.value.trim();
+ if(!text)return;
+ el.value="";
+ add(text,"user");
+ history.push({role:"user",content:text});
+ add("Jaan, ek second... ❤️","bot");
+ const loading=chat.lastChild;
+ try{
+   const response=await fetch("/.netlify/functions/chat",{
+     method:"POST",
+     headers:{"Content-Type":"application/json"},
+     body:JSON.stringify({messages:history.slice(-12)})
+   });
+   if(!response.ok)throw new Error("AI service unavailable");
+   const data=await response.json();
+   loading.textContent=data.reply;
+   history.push({role:"assistant",content:data.reply});
+   window.lastReply=data.reply;
+ }catch(e){
+   loading.textContent="Jaan, abhi AI connection ready nahi hai. Thodi der baad try karna. ❤️";
+ }
 }
-function send(){
- const el=document.getElementById('msg');
- let t=el.value.trim();if(!t)return;
- add(t,'me');el.value='';
- let r=reply(t);lastReply=r;
- setTimeout(()=>{add(r,'her');say(r)},500);
-}
-function say(t){
- if(!('speechSynthesis' in window))return;
+function speak(){
+ if(!window.lastReply)return alert("Pehle Anaya se baat karo jaan!");
+ const u=new SpeechSynthesisUtterance(window.lastReply);
+ u.lang="hi-IN";u.rate=.9;u.pitch=1.15;
  speechSynthesis.cancel();
- let u=new SpeechSynthesisUtterance(t);
- u.lang='hi-IN';u.rate=.91;u.pitch=1.12;
  speechSynthesis.speak(u);
 }
-function speakLast(){say(lastReply)}
-function listen(){
+function voiceInput(){
  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
- if(!SR){alert('Voice input is not supported in this browser. Try Chrome.');return}
- let r=new SR();r.lang='hi-IN';
+ if(!SR)return alert("Voice input is not supported in this browser.");
+ const r=new SR();r.lang="hi-IN";
  r.onresult=e=>{
- document.getElementById('msg').value=e.results[0][0].transcript;
+ document.getElementById("message").value=e.results[0][0].transcript;
  send();
  };
- r.onerror=()=>alert('Microphone permission check karein.');
  r.start();
-}
-function showCall(){
- document.getElementById('call').style.display='flex';
-}
-function answer(){
- document.getElementById('calltext').textContent='Call demo connected. ❤️';
- say('Hii jaan! Kaise ho? Mujhse baat karo.');
-}
-function endCall(){
- document.getElementById('call').style.display='none';
- if('speechSynthesis' in window)speechSynthesis.cancel();
 }
 </script>
 </body>

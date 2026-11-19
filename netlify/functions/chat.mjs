@@ -1,4 +1,3 @@
-
 export default async (req) => {
   if (req.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
@@ -50,7 +49,7 @@ Never claim to be a real human.
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model: "llama-3.1-8b-instant",
+          model: "openai/gpt-oss-20b",
           messages: [
             { role: "system", content: systemPrompt },
             ...safeMessages
